@@ -4,7 +4,7 @@ import { redis } from '@/lib/redis';
 import { isValidIcon } from '@/lib/subdomains';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { rootDomain, protocol } from '@/lib/utils';
+import { rootDomain, protocol, siteOrigin } from '@/lib/utils';
 
 export async function createSubdomainAction(prevState: any, formData: FormData) {
   const subdomain = formData.get('subdomain') as string;
@@ -57,7 +57,11 @@ export async function createSubdomainAction(prevState: any, formData: FormData) 
     })
   );
 
-  redirect(`${protocol}://${sanitizedSubdomain}.${rootDomain}`);
+  // Prefer an explicit site origin if provided, otherwise build from protocol/rootDomain.
+  const origin = process.env.NEXT_PUBLIC_SITE_ORIGIN || siteOrigin;
+  // Replace the base host with the subdomain host (keeps protocol if present).
+  const target = origin.replace(rootDomain, `${sanitizedSubdomain}.${rootDomain}`);
+  redirect(target);
 }
 
 export async function deleteSubdomainAction(prevState: any, formData: FormData) {
