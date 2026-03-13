@@ -6,10 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { rootDomain, protocol } from '@/lib/utils';
 
-export async function createSubdomainAction(
-  prevState: any,
-  formData: FormData
-) {
+export async function createSubdomainAction(prevState: any, formData: FormData) {
   const subdomain = formData.get('subdomain') as string;
   const icon = formData.get('icon') as string;
 
@@ -33,14 +30,11 @@ export async function createSubdomainAction(
       subdomain,
       icon,
       success: false,
-      error:
-        'Subdomain can only have lowercase letters, numbers, and hyphens. Please try again.'
+      error: 'Subdomain can only have lowercase letters, numbers, and hyphens. Please try again.'
     };
   }
 
-  const subdomainAlreadyExists = await redis.get(
-    `subdomain:${sanitizedSubdomain}`
-  );
+  const subdomainAlreadyExists = await redis.get(`subdomain:${sanitizedSubdomain}`);
   if (subdomainAlreadyExists) {
     return {
       subdomain,
@@ -50,18 +44,23 @@ export async function createSubdomainAction(
     };
   }
 
-  await redis.set(`subdomain:${sanitizedSubdomain}`, {
-    emoji: icon,
-    createdAt: Date.now()
-  });
+  // await redis.set(`subdomain:${sanitizedSubdomain}`, {
+  //   emoji: icon,
+  //   createdAt: Date.now()
+  // });
+
+  await redis.set(
+    `subdomain:${sanitizedSubdomain}`,
+    JSON.stringify({
+      emoji: icon,
+      createdAt: Date.now()
+    })
+  );
 
   redirect(`${protocol}://${sanitizedSubdomain}.${rootDomain}`);
 }
 
-export async function deleteSubdomainAction(
-  prevState: any,
-  formData: FormData
-) {
+export async function deleteSubdomainAction(prevState: any, formData: FormData) {
   const subdomain = formData.get('subdomain');
   await redis.del(`subdomain:${subdomain}`);
   revalidatePath('/admin');
