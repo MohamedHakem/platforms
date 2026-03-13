@@ -1,3 +1,4 @@
 import Redis from 'ioredis';
 
-export const redis = new Redis(process.env.KV_REST_API_URL);
+const redisUrl = process.env.KV_REST_API_URL;
+export const redis = redisUrl ? new Redis(redisUrl) : new Redis();

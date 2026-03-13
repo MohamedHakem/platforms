@@ -15,10 +15,7 @@ export function isValidIcon(str: string) {
   } catch (error) {
     // If the regex fails (e.g., in environments that don't support Unicode property escapes),
     // fall back to a simpler validation
-    console.warn(
-      'Emoji regex validation failed, using fallback validation',
-      error
-    );
+    console.warn('Emoji regex validation failed, using fallback validation', error);
   }
 
   // Fallback validation: Check if the string is within a reasonable length
@@ -31,31 +28,45 @@ type SubdomainData = {
   createdAt: number;
 };
 
-export async function getSubdomainData(subdomain: string) {
+export async function getSubdomainData(subdomain: string): Promise<SubdomainData | null> {
   const sanitizedSubdomain = subdomain.toLowerCase().replace(/[^a-z0-9-]/g, '');
-  const data = await redis.get<SubdomainData>(
-    `subdomain:${sanitizedSubdomain}`
-  );
-  return data;
+  const raw = await redis.get(`subdomain:${sanitizedSubdomain}`);
+  if (!raw) return null;
+
+  try {
+    return JSON.parse(raw) as SubdomainData;
+  } catch (err) {
+    console.warn('Failed to parse subdomain data from Redis for', sanitizedSubdomain, err);
+    return null;
+  }
 }
 
-export async function getAllSubdomains() {
+export async function getAllSubdomains(): Promise<{ subdomain: string; emoji: string; createdAt: number }[]> {
   const keys = await redis.keys('subdomain:*');
 
   if (!keys.length) {
     return [];
   }
 
-  const values = await redis.mget<SubdomainData[]>(...keys);
+  const values = await redis.mget(...keys) as (string | null)[];
 
   return keys.map((key, index) => {
     const subdomain = key.replace('subdomain:', '');
-    const data = values[index];
+    const raw = values[index];
+    let data: SubdomainData | null = null;
+
+    if (raw) {
+      try {
+        data = JSON.parse(raw) as SubdomainData;
+      } catch (err) {
+        console.warn('Failed to parse subdomain data from Redis for', subdomain, err);
+      }
+    }
 
     return {
       subdomain,
-      emoji: data?.emoji || '❓',
-      createdAt: data?.createdAt || Date.now()
+      emoji: data?.emoji ?? '❓',
+      createdAt: data?.createdAt ?? Date.now()
     };
   });
 }

@@ -4,11 +4,7 @@ import { notFound } from 'next/navigation';
 import { getSubdomainData } from '@/lib/subdomains';
 import { protocol, rootDomain } from '@/lib/utils';
 
-export async function generateMetadata({
-  params
-}: {
-  params: Promise<{ subdomain: string }>;
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ subdomain: string }> }): Promise<Metadata> {
   const { subdomain } = await params;
   const subdomainData = await getSubdomainData(subdomain);
 
@@ -24,13 +20,10 @@ export async function generateMetadata({
   };
 }
 
-export default async function SubdomainPage({
-  params
-}: {
-  params: Promise<{ subdomain: string }>;
-}) {
+export default async function SubdomainPage({ params }: { params: Promise<{ subdomain: string }> }) {
   const { subdomain } = await params;
   const subdomainData = await getSubdomainData(subdomain);
+  console.log('subdomainData', subdomainData);
 
   if (!subdomainData) {
     notFound();
@@ -39,10 +32,7 @@ export default async function SubdomainPage({
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-blue-50 to-white p-4">
       <div className="absolute top-4 right-4">
-        <Link
-          href={`${protocol}://${rootDomain}`}
-          className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
-        >
+        <Link href={`${protocol}://${rootDomain}`} className="text-sm text-gray-500 hover:text-gray-700 transition-colors">
           {rootDomain}
         </Link>
       </div>
@@ -53,9 +43,7 @@ export default async function SubdomainPage({
           <h1 className="text-4xl font-bold tracking-tight text-gray-900">
             Welcome to {subdomain}.{rootDomain}
           </h1>
-          <p className="mt-3 text-lg text-gray-600">
-            This is your custom subdomain page
-          </p>
+          <p className="mt-3 text-lg text-gray-600">This is your custom subdomain page</p>
         </div>
       </div>
     </div>
