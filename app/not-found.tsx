@@ -32,18 +32,16 @@ export default function NotFound() {
         <h1 className="text-4xl font-bold tracking-tight text-gray-900">
           {subdomain ? (
             <>
-              <span className="text-blue-600">{subdomain}</span>.{rootDomain}{' '}
-              doesn't exist
+              <span className="text-blue-600">{subdomain}</span>.{rootDomain} doesn't exist
             </>
           ) : (
             'Subdomain Not Found'
           )}
         </h1>
-        <p className="mt-3 text-lg text-gray-600">
-          This subdomain hasn't been created yet.
-        </p>
+        <p className="mt-3 text-lg text-gray-600">This subdomain hasn't been created yet.</p>
         <div className="mt-6">
           <Link
+            prefetch={false}
             href={`${protocol}://${rootDomain}`}
             className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
           >

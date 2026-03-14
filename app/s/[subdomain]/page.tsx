@@ -35,7 +35,11 @@ export default async function SubdomainPage({ params }: { params: Promise<{ subd
   return (
     <div className="flex min-h-screen flex-col bg-gradient-to-b from-blue-50 to-white p-4">
       <div className="absolute top-4 right-4">
-        <Link href={`${protocol}://${rootDomain}`} className="text-sm text-gray-500 hover:text-gray-700 transition-colors">
+        <Link
+          prefetch={false}
+          href={`${protocol}://${rootDomain}`}
+          className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+        >
           {rootDomain}
         </Link>
       </div>

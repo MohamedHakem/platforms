@@ -27,6 +27,7 @@ function DashboardHeader() {
       <h1 className="text-3xl font-bold">Subdomain Management</h1>
       <div className="flex items-center gap-4">
         <Link
+          prefetch={false}
           href={`${protocol}://${rootDomain}`}
           className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
         >
@@ -64,11 +65,7 @@ function TenantGrid({
             <div className="flex items-center justify-between">
               <CardTitle className="text-xl">{tenant.subdomain}</CardTitle>
               <form action={action}>
-                <input
-                  type="hidden"
-                  name="subdomain"
-                  value={tenant.subdomain}
-                />
+                <input type="hidden" name="subdomain" value={tenant.subdomain} />
                 <Button
                   variant="ghost"
                   size="icon"
@@ -76,11 +73,7 @@ function TenantGrid({
                   disabled={isPending}
                   className="text-gray-500 hover:text-gray-700 hover:bg-gray-50"
                 >
-                  {isPending ? (
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                  ) : (
-                    <Trash2 className="h-5 w-5" />
-                  )}
+                  {isPending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Trash2 className="h-5 w-5" />}
                 </Button>
               </form>
             </div>
@@ -88,9 +81,7 @@ function TenantGrid({
           <CardContent>
             <div className="flex items-center justify-between">
               <div className="text-4xl">{tenant.emoji}</div>
-              <div className="text-sm text-gray-500">
-                Created: {new Date(tenant.createdAt).toLocaleDateString()}
-              </div>
+              <div className="text-sm text-gray-500">Created: {new Date(tenant.createdAt).toLocaleDateString()}</div>
             </div>
             <div className="mt-4">
               <a
@@ -110,10 +101,7 @@ function TenantGrid({
 }
 
 export function AdminDashboard({ tenants }: { tenants: Tenant[] }) {
-  const [state, action, isPending] = useActionState<DeleteState, FormData>(
-    deleteSubdomainAction,
-    {}
-  );
+  const [state, action, isPending] = useActionState<DeleteState, FormData>(deleteSubdomainAction, {});
 
   return (
     <div className="space-y-6 relative p-4 md:p-8">
