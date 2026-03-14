@@ -7,6 +7,8 @@ function extractSubdomain(request: NextRequest): string | null {
   const host = request.headers.get('host') || '';
   const hostname = host.split(':')[0];
 
+  info('[extractSubdomain] extractSubdomain', { url, host, hostname });
+
   // Local development environment
   if (url.includes('localhost') || url.includes('127.0.0.1')) {
     // Try to extract subdomain from the full URL
@@ -66,7 +68,7 @@ export async function proxy(request: NextRequest) {
     // import dynamic to avoid circular imports in middleware
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { info } = require('./lib/log');
-    info('middleware', { pathname, subdomain, host: request.headers.get('host') });
+    info('[middleware]', { pathname, subdomain, host: request.headers.get('host') });
   } catch (e) {
     // ignore logging failures
   }
