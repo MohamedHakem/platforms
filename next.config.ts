@@ -4,6 +4,7 @@ const nextConfig: NextConfig = {
   /* config options here */
   output: 'standalone',
   assetPrefix: process.env.NODE_ENV === 'production' ? 'https://sllty.com' : '',
+  outputFileTracingRoot: undefined,
   // Enable experimental features if needed
   experimental: {
     // Enable filesystem caching for `next dev`
