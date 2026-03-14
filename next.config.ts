@@ -11,21 +11,43 @@ const nextConfig: NextConfig = {
     turbopackFileSystemCacheForDev: true,
     // Enable filesystem caching for `next build`
     turbopackFileSystemCacheForBuild: true
-  }
+  },
   // Ensure proper handling of Vercel Analytics and Speed Insights
-  // headers: async () => {
-  //   return [
-  //     {
-  //       source: '/_vercel/speed-insights/script.js',
-  //       headers: [
-  //         {
-  //           key: 'Cache-Control',
-  //           value: 'public, max-age=31536000, immutable',
-  //         },
-  //       ],
-  //     },
-  //   ];
-  // },
+  headers: async () => {
+    return [
+      {
+        source: '/_vercel/speed-insights/script.js',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable'
+          }
+        ]
+      },
+      {
+        source: '/_next/static/media/(.*)',
+        headers: [
+          {
+            key: 'Access-Control-Allow-Origin',
+            value: '*'
+          },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable'
+          }
+        ]
+      },
+      {
+        source: '/favicon.ico',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=86400'
+          }
+        ]
+      }
+    ];
+  }
 };
 
 export default nextConfig;
