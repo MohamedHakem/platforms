@@ -16,15 +16,6 @@ const nextConfig: NextConfig = {
   headers: async () => {
     return [
       {
-        source: '/_vercel/speed-insights/script.js',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable'
-          }
-        ]
-      },
-      {
         source: '/_next/static/media/(.*)',
         headers: [
           {
