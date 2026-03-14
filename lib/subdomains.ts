@@ -42,7 +42,7 @@ export async function getSubdomainData(subdomain: string): Promise<SubdomainData
 }
 
 export async function getAllSubdomains(): Promise<{ subdomain: string; emoji: string; createdAt: number }[]> {
-  const keys = await redis.keys('subdomain:*');
+  const keys = await redis.keys('subdomain:*') as string[];
 
   if (!keys.length) {
     return [];
