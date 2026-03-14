@@ -3,6 +3,7 @@ import { extractSubdomain } from './lib/extractSubdomain';
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const url = request.url;
   const subdomain = extractSubdomain(request);
 
   try {
@@ -10,7 +11,7 @@ export async function proxy(request: NextRequest) {
     // import dynamic to avoid circular imports in middleware
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { info } = require('./lib/log');
-    info('[middleware]', { pathname, subdomain, host: request.headers.get('host') });
+    info('[middleware]', { url, pathname, subdomain, host: request.headers.get('host') });
   } catch (e) {
     // ignore logging failures
   }
