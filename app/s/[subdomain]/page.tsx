@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getSubdomainData } from '@/lib/subdomains';
 import { protocol, rootDomain } from '@/lib/utils';
+import { info, debug, warn } from '@/lib/log';
 
 export async function generateMetadata({ params }: { params: Promise<{ subdomain: string }> }): Promise<Metadata> {
   const { subdomain } = await params;
@@ -22,10 +23,12 @@ export async function generateMetadata({ params }: { params: Promise<{ subdomain
 
 export default async function SubdomainPage({ params }: { params: Promise<{ subdomain: string }> }) {
   const { subdomain } = await params;
+  debug('SubdomainPage requested', subdomain);
   const subdomainData = await getSubdomainData(subdomain);
-  console.log('subdomainData', subdomainData);
+  debug('SubdomainPage data', subdomain, subdomainData);
 
   if (!subdomainData) {
+    warn('Subdomain not found - returning 404', subdomain);
     notFound();
   }
 

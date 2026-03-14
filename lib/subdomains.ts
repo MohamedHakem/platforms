@@ -1,4 +1,5 @@
 import { redis } from '@/lib/redis';
+import { debug, info, warn, error } from '@/lib/log';
 
 export function isValidIcon(str: string) {
   if (str.length > 10) {
@@ -30,43 +31,62 @@ type SubdomainData = {
 
 export async function getSubdomainData(subdomain: string): Promise<SubdomainData | null> {
   const sanitizedSubdomain = subdomain.toLowerCase().replace(/[^a-z0-9-]/g, '');
-  const raw = await redis.get(`subdomain:${sanitizedSubdomain}`);
-  if (!raw) return null;
-
   try {
-    return JSON.parse(raw) as SubdomainData;
+    debug('Fetching subdomain data', sanitizedSubdomain);
+    const raw = await redis.get(`subdomain:${sanitizedSubdomain}`);
+    if (!raw) {
+      debug('No subdomain data found for', sanitizedSubdomain);
+      return null;
+    }
+
+    try {
+      const parsed = JSON.parse(raw) as SubdomainData;
+      debug('Parsed subdomain data', sanitizedSubdomain, parsed);
+      return parsed;
+    } catch (err) {
+      warn('Failed to parse subdomain data from Redis for', sanitizedSubdomain, err);
+      return null;
+    }
   } catch (err) {
-    console.warn('Failed to parse subdomain data from Redis for', sanitizedSubdomain, err);
+    error('Error fetching subdomain data for', sanitizedSubdomain, err);
     return null;
   }
 }
 
 export async function getAllSubdomains(): Promise<{ subdomain: string; emoji: string; createdAt: number }[]> {
-  const keys = await redis.keys('subdomain:*') as string[];
+  try {
+    debug('Listing subdomain keys');
+    const keys = (await redis.keys('subdomain:*')) as string[];
 
-  if (!keys.length) {
-    return [];
-  }
-
-  const values = await redis.mget(...keys) as (string | null)[];
-
-  return keys.map((key, index) => {
-    const subdomain = key.replace('subdomain:', '');
-    const raw = values[index];
-    let data: SubdomainData | null = null;
-
-    if (raw) {
-      try {
-        data = JSON.parse(raw) as SubdomainData;
-      } catch (err) {
-        console.warn('Failed to parse subdomain data from Redis for', subdomain, err);
-      }
+    if (!keys.length) {
+      debug('No subdomains found');
+      return [];
     }
 
-    return {
-      subdomain,
-      emoji: data?.emoji ?? '❓',
-      createdAt: data?.createdAt ?? Date.now()
-    };
-  });
+    debug('Found subdomain keys', keys.length);
+    const values = (await redis.mget(...keys)) as (string | null)[];
+
+    return keys.map((key, index) => {
+      const subdomain = key.replace('subdomain:', '');
+      const raw = values[index];
+      let data: SubdomainData | null = null;
+
+      if (raw) {
+        try {
+          data = JSON.parse(raw) as SubdomainData;
+        } catch (err) {
+          warn('Failed to parse subdomain data from Redis for', subdomain, err);
+        }
+      }
+
+      return {
+        subdomain,
+        emoji: data?.emoji ?? '❓',
+        createdAt: data?.createdAt ?? Date.now()
+      };
+    });
+  } catch (err) {
+    error('Error listing all subdomains', err);
+    return [];
+  }
 }

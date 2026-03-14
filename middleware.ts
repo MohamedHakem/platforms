@@ -44,6 +44,16 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const subdomain = extractSubdomain(request);
 
+  try {
+    // lightweight logging — enabled by DEBUG_LOG env var in `lib/log.ts`
+    // import dynamic to avoid circular imports in middleware
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const { info } = require('./lib/log');
+    info('middleware', { pathname, subdomain, host: request.headers.get('host') });
+  } catch (e) {
+    // ignore logging failures
+  }
+
   if (subdomain) {
     // Block access to admin page from subdomains
     if (pathname.startsWith('/admin')) {

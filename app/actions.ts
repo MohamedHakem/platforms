@@ -5,6 +5,7 @@ import { isValidIcon } from '@/lib/subdomains';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { rootDomain, protocol, siteOrigin } from '@/lib/utils';
+import { debug, info, warn } from '@/lib/log';
 
 export async function createSubdomainAction(prevState: any, formData: FormData) {
   const subdomain = formData.get('subdomain') as string;
@@ -25,6 +26,8 @@ export async function createSubdomainAction(prevState: any, formData: FormData) 
 
   const sanitizedSubdomain = subdomain.toLowerCase().replace(/[^a-z0-9-]/g, '');
 
+  debug('createSubdomainAction', { subdomain, sanitizedSubdomain, icon });
+
   if (sanitizedSubdomain !== subdomain) {
     return {
       subdomain,
@@ -36,6 +39,7 @@ export async function createSubdomainAction(prevState: any, formData: FormData) 
 
   const subdomainAlreadyExists = await redis.get(`subdomain:${sanitizedSubdomain}`);
   if (subdomainAlreadyExists) {
+    warn('Attempted to create existing subdomain', sanitizedSubdomain);
     return {
       subdomain,
       icon,
@@ -57,6 +61,8 @@ export async function createSubdomainAction(prevState: any, formData: FormData) 
     })
   );
 
+  info('Created subdomain', sanitizedSubdomain);
+
   // Prefer an explicit site origin if provided, otherwise build from protocol/rootDomain.
   const origin = process.env.NEXT_PUBLIC_SITE_ORIGIN || siteOrigin;
   // Replace the base host with the subdomain host (keeps protocol if present).
@@ -66,6 +72,7 @@ export async function createSubdomainAction(prevState: any, formData: FormData) 
 
 export async function deleteSubdomainAction(prevState: any, formData: FormData) {
   const subdomain = formData.get('subdomain');
+  debug('deleteSubdomainAction', subdomain);
   await redis.del(`subdomain:${subdomain}`);
   revalidatePath('/admin');
   return { success: 'Domain deleted successfully' };
