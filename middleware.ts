@@ -33,9 +33,24 @@ function extractSubdomain(request: NextRequest): string | null {
 
   // Regular subdomain detection
   const isSubdomain =
-    hostname !== rootDomainFormatted &&
-    hostname !== `www.${rootDomainFormatted}` &&
-    hostname.endsWith(`.${rootDomainFormatted}`);
+    hostname !== rootDomainFormatted && hostname !== `www.${rootDomainFormatted}` && hostname.endsWith(`.${rootDomainFormatted}`);
+
+  console.log('[middleware] isSubdomain:', isSubdomain);
+  console.log('[middleware] rootDomainFormatted:', rootDomainFormatted);
+  console.log('[middleware] hostname:', hostname);
+  console.log('[middleware] endsWith check:', hostname.endsWith(`.${rootDomainFormatted}`));
+
+  console.log('🔥 DEBUG - extractSubdomain input:', {
+    url: request.url,
+    host: request.headers.get('host'),
+    rootDomain: rootDomain,
+    rootDomainFormatted: rootDomain.split(':')[0],
+    hostname: hostname,
+    isSubdomain:
+      hostname !== rootDomain.split(':')[0] &&
+      hostname !== `www.${rootDomain.split(':')[0]}` &&
+      hostname.endsWith(`.${rootDomain.split(':')[0]}`)
+  });
 
   return isSubdomain ? hostname.replace(`.${rootDomainFormatted}`, '') : null;
 }
