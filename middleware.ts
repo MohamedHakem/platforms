@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { rootDomain } from '@/lib/utils';
-import { debug, info } from './lib/log';
+import { debug, error, info } from './lib/log';
 
 function extractSubdomain(request: NextRequest): string | null {
   const url = request.url;
@@ -36,12 +36,12 @@ function extractSubdomain(request: NextRequest): string | null {
   const isSubdomain =
     hostname !== rootDomainFormatted && hostname !== `www.${rootDomainFormatted}` && hostname.endsWith(`.${rootDomainFormatted}`);
 
-  info('[middleware] isSubdomain:', isSubdomain);
-  info('[middleware] rootDomainFormatted:', rootDomainFormatted);
-  info('[middleware] hostname:', hostname);
-  info('[middleware] endsWith check:', hostname.endsWith(`.${rootDomainFormatted}`));
+  error('[middleware] isSubdomain:', isSubdomain);
+  error('[middleware] rootDomainFormatted:', rootDomainFormatted);
+  error('[middleware] hostname:', hostname);
+  error('[middleware] endsWith check:', hostname.endsWith(`.${rootDomainFormatted}`));
 
-  debug('[🔥DEBUG] extractSubdomain', {
+  error('[🔥DEBUG] extractSubdomain', {
     url: request.url,
     host: request.headers.get('host'),
     rootDomain,
