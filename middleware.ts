@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { rootDomain } from '@/lib/utils';
+import { debug, info } from './lib/log';
 
 function extractSubdomain(request: NextRequest): string | null {
   const url = request.url;
@@ -35,21 +36,22 @@ function extractSubdomain(request: NextRequest): string | null {
   const isSubdomain =
     hostname !== rootDomainFormatted && hostname !== `www.${rootDomainFormatted}` && hostname.endsWith(`.${rootDomainFormatted}`);
 
-  console.log('[middleware] isSubdomain:', isSubdomain);
-  console.log('[middleware] rootDomainFormatted:', rootDomainFormatted);
-  console.log('[middleware] hostname:', hostname);
-  console.log('[middleware] endsWith check:', hostname.endsWith(`.${rootDomainFormatted}`));
+  info('[middleware] isSubdomain:', isSubdomain);
+  info('[middleware] rootDomainFormatted:', rootDomainFormatted);
+  info('[middleware] hostname:', hostname);
+  info('[middleware] endsWith check:', hostname.endsWith(`.${rootDomainFormatted}`));
 
-  console.log('🔥 DEBUG - extractSubdomain input:', {
+  debug('[🔥DEBUG] extractSubdomain', {
     url: request.url,
     host: request.headers.get('host'),
-    rootDomain: rootDomain,
+    rootDomain,
     rootDomainFormatted: rootDomain.split(':')[0],
-    hostname: hostname,
-    isSubdomain:
-      hostname !== rootDomain.split(':')[0] &&
-      hostname !== `www.${rootDomain.split(':')[0]}` &&
-      hostname.endsWith(`.${rootDomain.split(':')[0]}`)
+    hostname,
+    isSubdomainCheck: {
+      notEqual: hostname !== rootDomain.split(':')[0],
+      notWww: hostname !== `www.${rootDomain.split(':')[0]}`,
+      endsWith: hostname.endsWith(`.${rootDomain.split(':')[0]}`)
+    }
   });
 
   return isSubdomain ? hostname.replace(`.${rootDomainFormatted}`, '') : null;
