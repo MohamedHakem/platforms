@@ -86,11 +86,8 @@ ENV HOSTNAME="0.0.0.0"
 # Uncomment the following line in case you want to disable telemetry during the run time.
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Ensure public directory exists (even if empty)
-RUN mkdir -p /app/public
-
-# Copy production assets
-COPY --from=builder --chown=node:node /app/public ./public
+# Copy production assets (uncomment below line if you have static assets in the public directory that you want to include in the final image)
+COPY --from=builder --chown=node:node /app/public ./public 
 
 # Set the correct permission for prerender cache
 RUN mkdir .next
