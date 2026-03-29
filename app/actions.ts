@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { rootDomain, protocol, siteOrigin } from '@/lib/utils';
 import { debug, info, warn } from '@/lib/log';
+import slugify from '@sindresorhus/slugify';
 
 export async function createSubdomainAction(prevState: any, formData: FormData) {
   const subdomain = formData.get('subdomain') as string;
@@ -24,7 +25,8 @@ export async function createSubdomainAction(prevState: any, formData: FormData) 
     };
   }
 
-  const sanitizedSubdomain = subdomain.toLowerCase().replace(/[^a-z0-9-]/g, '');
+  // const sanitizedSubdomain = subdomain.toLowerCase().replace(/[^a-z0-9-]/g, '');
+  const sanitizedSubdomain = slugify(subdomain, { lowercase: true, separator: '-' });
 
   debug('createSubdomainAction', { subdomain, sanitizedSubdomain, icon });
 
